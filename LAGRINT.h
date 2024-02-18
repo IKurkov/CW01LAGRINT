@@ -7,26 +7,9 @@ enum class DISTR_MODE
   UNIFORM
 };
 
-struct Lagrange
-{
-  size_t Cnt;
-  double Left, Right, *Nodes, *Values;
-  DISTR_MODE NodesDistr;
-
-  double (*IntF)(double);
-
-  Lagrange( void );
-  Lagrange( size_t m, double a, double b, DISTR_MODE mode, double (*f)(double) );
-  ~Lagrange( void );
-
-  void swap( Lagrange &Other );
-  Lagrange & operator=( Lagrange &&Other );
-
-  void GenNodes( void );
-  void GenValues( void );
-  size_t FindNClosest( double target, size_t n );
-  double Interpolate( size_t n, double x, double &error );
-};
+void GenNodes( double *nodes, size_t size, double left, double right, DISTR_MODE Mode );
+void GenValues( const double *nodes, double *values, size_t size, double (*f)(double) );
+size_t FindNClosest( const double *nodes, size_t size, double target, size_t n );
+double LagrangeInterpolation( const double *nodes, const double *values, size_t deg, double x );
 
 #endif // !LAGRINT_H
-

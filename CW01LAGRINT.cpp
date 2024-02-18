@@ -12,12 +12,11 @@ double Variant7( double x )
 
 int main()
 {
-  double x, a, b, e = 0;
-  size_t n, m;
-  int key;
   bool run = true;
+  int key;
+  size_t n, m, start;
+  double x, a, b, L, e = 0, *nodes = nullptr, *values = nullptr;
   DISTR_MODE mode;
-  Lagrange L;
   
   while (run)
   {
@@ -31,8 +30,11 @@ int main()
     case '1':
       std::cout << "Input number of arguments: ";
       std::cin >> m;
-      std::cout << "Input [a, b]: ";
-      std::cin >> a >> b;
+      do
+      {
+        std::cout << "Input [a, b]: ";
+        std::cin >> a >> b;
+      } while (a >= b);
       do
       {
         std::cout << "Choose nodes distribution: r - random/u - uniform\n";
@@ -43,6 +45,15 @@ int main()
           mode = DISTR_MODE::UNIFORM;
       } while (key != 'r' && key != 'u');
 
+      if (nodes != nullptr)
+        delete[] nodes;
+      nodes = new double[m];
+      if (values != nullptr)
+        delete[] values;
+      values = new double[m];
+      GenNodes(nodes, m, a, b, mode);
+      GenValues(nodes, values, m, Variant7);
+
       std::cout << "Input interpolation point: ";
       std::cin >> x;
       do
@@ -50,17 +61,20 @@ int main()
         std::cout << "Input degree of Lagrange polynomial < " << m << ": ";
         std::cin >> n;
       } while (n >= m);
-      L = Lagrange(m, a, b, mode, Variant7);
 
-      std::cout << "f(x) = " << L.Interpolate(n, x, e) << " +- " << e << '\n';
+      start = FindNClosest(nodes, m, x, n);
+      L = LagrangeInterpolation(nodes + start, values + start, n, x);
+
+      std::cout << "f(" << x << ") = " << L << " +- " << fabs(L - Variant7(x)) << '\n';
       break;
     case '0':
       run = false;
+      delete[] nodes;
+      delete[] values;
       break;
     default:
       std::cout << "Incorrect choice!\n";
     }
   }
-
   return 0;
 }

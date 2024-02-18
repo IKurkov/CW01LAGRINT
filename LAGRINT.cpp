@@ -4,60 +4,18 @@
 
 #include "lagrint.h"
 
-Lagrange::Lagrange( void ) : Cnt(0), Left(0), Right(0), Nodes(nullptr), Values(nullptr) {}
-
-Lagrange::Lagrange( size_t m, double a, double b, DISTR_MODE mode, double (*f)(double) )
-  : Cnt(m), Nodes(new double[Cnt]), Values(new double[Cnt]), NodesDistr(mode), IntF(f)
+void GenNodes( double *nodes, size_t size, double left, double right, DISTR_MODE Mode )
 {
-  if (a < b)
-  {
-    Left = a;
-    Right = b;
-  }
-  else
-  {
-    Left = b;
-    Right = a;
-  }
-  GenNodes();
-  GenValues();
-}
-
-Lagrange::~Lagrange(void)
-{
-  delete[] Nodes;
-  delete[] Values;
-}
-
-void Lagrange::swap( Lagrange &Other )
-{
-  std::swap(Cnt, Other.Cnt);
-  std::swap(Left, Other.Left);
-  std::swap(Right, Other.Right);
-  std::swap(Nodes, Other.Nodes);
-  std::swap(Values, Other.Values);
-  std::swap(NodesDistr, Other.NodesDistr);
-  std::swap(IntF, Other.IntF);
-}
-
-Lagrange & Lagrange::operator=( Lagrange &&Other )
-{
-  swap(Other);
-  return *this;
-}
-
-void Lagrange::GenNodes( void )
-{
-  switch (NodesDistr)
+  switch (Mode)
   {
   case DISTR_MODE::RANDOM:
-    for (size_t i = 0; i < Cnt; i++)
-      Nodes[i] = ((double)std::rand() / RAND_MAX - 0.5) * (Right - Left);
-    std::sort(Nodes, Nodes + Cnt);
+    for (size_t i = 0; i < size; i++)
+      nodes[i] = ((double)std::rand() / RAND_MAX - 0.5) * (right - left);
+    std::sort(nodes, nodes + size);
     break;
   case DISTR_MODE::UNIFORM:
-    for (size_t i = 0; i < Cnt; i++)
-      Nodes[i] = Left + (Right - Left) * i / (Cnt - 1);
+    for (size_t i = 0; i < size; i++)
+      nodes[i] = left + (right - left) * i / (size - 1);
     break;
   default:
     break;
@@ -65,39 +23,37 @@ void Lagrange::GenNodes( void )
 }
 
 
-void Lagrange::GenValues( void )
+void GenValues( const double *nodes, double *values, size_t size, double (*f)(double) )
 {
-  for (size_t i = 0; i < Cnt; i++)
-    Values[i] = IntF(Nodes[i]);
+  for (size_t i = 0; i < size; i++)
+    values[i] = f(nodes[i]);
 }
 
-size_t Lagrange::FindNClosest( double target, size_t n )
+size_t FindNClosest( const double *nodes, size_t size, double target, size_t n )
 {
-  size_t start = 0, end = Cnt;
+  size_t start = 0, end = size;
   start = 0;
 
   while (end - start >= n)
-    if (fabs(Nodes[start] - target) > fabs(Nodes[end] - target))
+    if (fabs(nodes[start] - target) > fabs(nodes[end] - target))
       start++;
     else
       end--;
   return start;
 }
 
-double Lagrange::Interpolate( size_t n, double x, double &error )
+double LagrangeInterpolation( const double *nodes, const double *values, size_t deg, double x )
 {
-  size_t start = FindNClosest(x, n + 1);
   double val = 0, l;
 
-  for (size_t i = 0; i < n; i++)
+  for (size_t i = 0; i < deg; i++)
   {
     l = 1;
-    for (size_t j = 0; j < n; j++)
+    for (size_t j = 0; j < deg; j++)
       if (i != j)
-        l *= (x - Nodes[j]) / (Nodes[i] - Nodes[j]);
-    val += l * Values[i];
+        l *= (x - nodes[j]) / (nodes[i] - nodes[j]);
+    val += l * values[i];
   }
 
-  error = fabs(IntF(x) - val);
   return val;
 }
