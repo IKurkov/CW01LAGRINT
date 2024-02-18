@@ -1,5 +1,6 @@
 /* Kurkov Ivan, 22.B05-MM, 15.02.2024 */
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 #include <conio.h>
 
@@ -10,7 +11,15 @@ double Variant7( double x )
   return exp(-x) - x * x / 2;
 }
 
-int main()
+void PrintValues( const double *nodes, const double *values, size_t size )
+{
+  std::cout << std::setw(15) << 'x' << '|' << std::setw(15) << "f(x)" << '\n'
+            << std::string(15, '-') << '+' << std::string(15, '-') << '\n';
+  for (size_t i = 0; i < size; i++)
+    std::cout << std::setw(15) << nodes[i] << '|' << std::setw(15) << values[i] << '\n';
+}
+
+int main( void )
 {
   bool run = true;
   int key;
@@ -53,6 +62,7 @@ int main()
       values = new double[m];
       GenNodes(nodes, m, a, b, mode);
       GenValues(nodes, values, m, Variant7);
+      PrintValues(nodes, values, m);
 
       std::cout << "Input interpolation point: ";
       std::cin >> x;
@@ -64,7 +74,40 @@ int main()
 
       start = FindNClosest(nodes, m, x, n);
       L = LagrangeInterpolation(nodes + start, values + start, n, x);
+      PrintValues(nodes + start, values + start, n);
+      std::cout << "f(" << x << ") = " << L << " +- " << fabs(L - Variant7(x)) << '\n';
+      break;
+    case '2':
+      if (nodes == nullptr)
+      {
+        std::cout << "No stored interpolation task!\n";
+        break;
+      }
 
+      std::cout << "Input interpolation point: ";
+      std::cin >> x;
+
+      start = FindNClosest(nodes, m, x, n);
+      L = LagrangeInterpolation(nodes + start, values + start, n, x);
+      PrintValues(nodes + start, values + start, n);
+      std::cout << "f(" << x << ") = " << L << " +- " << fabs(L - Variant7(x)) << '\n';
+      break;
+    case '3':
+      if (nodes == nullptr)
+      {
+        std::cout << "No stored interpolation task!\n";
+        break;
+      }
+
+      do
+      {
+        std::cout << "Input degree of Lagrange polynomial < " << m << ": ";
+        std::cin >> n;
+      } while (n >= m);
+
+      start = FindNClosest(nodes, m, x, n);
+      L = LagrangeInterpolation(nodes + start, values + start, n, x);
+      PrintValues(nodes + start, values + start, n);
       std::cout << "f(" << x << ") = " << L << " +- " << fabs(L - Variant7(x)) << '\n';
       break;
     case '0':
