@@ -29,8 +29,8 @@ int main( void )
   
   while (run)
   {
-    std::cout << "Algebraic interpolation utility menu:\n"
-              << "1 - Create new interpolation task\n"
+    std::cout << "Algebraic interpolation problem menu [variant #7]:\n"
+              << "1 - Create new interpolation problem\n"
               << "2 - Change point\n"
               << "3 - Change degree of Lagrange polynomial\n"
               << "0 - exit\n";
@@ -80,7 +80,7 @@ int main( void )
     case '2':
       if (nodes == nullptr)
       {
-        std::cout << "No stored interpolation task!\n";
+        std::cout << "No stored interpolation problem!\n";
         break;
       }
 
@@ -95,7 +95,7 @@ int main( void )
     case '3':
       if (nodes == nullptr)
       {
-        std::cout << "No stored interpolation task!\n";
+        std::cout << "No stored interpolation problem!\n";
         break;
       }
 

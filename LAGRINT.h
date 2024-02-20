@@ -1,3 +1,4 @@
+/* Kurkov Ivan, 22.B05-MM, 15.02.2024 */
 #ifndef LAGRINT_H
 #define LAGRINT_H
 
